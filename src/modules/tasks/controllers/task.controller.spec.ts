@@ -4,6 +4,7 @@ import { TaskService } from '../services/task.service';
 import { CreateTaskDto } from '../models/dto/create-task.dto';
 import { UpdateTaskDto } from '../models/dto/update-task.dto';
 import { TaskOutput } from '../models/types/task-output.type';
+import { TaskStatus } from '../models/types/task-status.enum';
 
 describe('TaskController', () => {
   let controller: TaskController;
@@ -12,7 +13,8 @@ describe('TaskController', () => {
     id: '1',
     title: 'Test Task',
     description: 'Test Description',
-    isCompleted: false,
+    status: TaskStatus.TODO,
+    order: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

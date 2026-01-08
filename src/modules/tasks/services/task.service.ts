@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityRepository, EntityManager } from '@mikro-orm/core';
 import { Task } from '../models/entities/task.entity';
 import { CreateTaskDto } from '../models/dto/create-task.dto';
 import { UpdateTaskDto } from '../models/dto/update-task.dto';
 import { TaskOutput } from '../models/types/task-output.type';
+import { TaskStatus } from '../models/types/task-status.enum';
 
 /**
  * Service for task business logic and persistence.
@@ -14,13 +15,19 @@ export class TaskService {
   constructor(
     @InjectRepository(Task)
     private readonly taskRepository: EntityRepository<Task>,
+    private readonly em: EntityManager,
   ) {}
   /**
    * Creates a new task.
    */
   async createTask(createTaskDto: CreateTaskDto): Promise<TaskOutput> {
-    const task = this.taskRepository.create(createTaskDto);
-    await this.taskRepository.persistAndFlush(task);
+    const task = new Task();
+    this.taskRepository.assign(task, {
+      ...createTaskDto,
+      status: createTaskDto.status || TaskStatus.TODO,
+      order: createTaskDto.order || 0,
+    });
+    await this.em.persistAndFlush(task);
     return this.mapToOutput(task);
   }
   /**
@@ -52,7 +59,7 @@ export class TaskService {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
     this.taskRepository.assign(task, updateTaskDto);
-    await this.taskRepository.flush();
+    await this.em.flush();
     return this.mapToOutput(task);
   }
   /**
@@ -63,7 +70,7 @@ export class TaskService {
     if (!task) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
-    await this.taskRepository.removeAndFlush(task);
+    await this.em.removeAndFlush(task);
   }
   /**
    * Maps entity to output type.

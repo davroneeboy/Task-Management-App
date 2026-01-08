@@ -1,39 +1,48 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityRepository, EntityManager } from '@mikro-orm/core';
 import { NotFoundException } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { Task } from '../models/entities/task.entity';
 import { CreateTaskDto } from '../models/dto/create-task.dto';
 import { UpdateTaskDto } from '../models/dto/update-task.dto';
+import { TaskStatus } from '../models/types/task-status.enum';
 
 describe('TaskService', () => {
   let service: TaskService;
   let mockRepository: jest.Mocked<EntityRepository<Task>>;
+  let mockEntityManager: jest.Mocked<EntityManager>;
   const mockTask: Task = {
     id: '1',
     title: 'Test Task',
     description: 'Test Description',
-    isCompleted: false,
+    status: TaskStatus.TODO,
+    order: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
   } as Task;
   beforeEach(async () => {
     mockRepository = {
       create: jest.fn(),
-      persistAndFlush: jest.fn(),
       findAll: jest.fn(),
       findOne: jest.fn(),
       assign: jest.fn(),
+    } as unknown as jest.Mocked<EntityRepository<Task>>;
+    mockEntityManager = {
+      persistAndFlush: jest.fn(),
       flush: jest.fn(),
       removeAndFlush: jest.fn(),
-    } as unknown as jest.Mocked<EntityRepository<Task>>;
+    } as unknown as jest.Mocked<EntityManager>;
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TaskService,
         {
           provide: getRepositoryToken(Task),
           useValue: mockRepository,
+        },
+        {
+          provide: EntityManager,
+          useValue: mockEntityManager,
         },
       ],
     }).compile();
@@ -48,19 +57,24 @@ describe('TaskService', () => {
       const expectedTask: Task = {
         ...mockTask,
         ...inputCreateTaskDto,
+        status: TaskStatus.TODO,
+        order: 0,
       } as Task;
-      mockRepository.create.mockReturnValue(expectedTask);
-      mockRepository.persistAndFlush.mockResolvedValue(undefined);
+      mockRepository.assign.mockImplementation((task, dto) => {
+        Object.assign(task, dto);
+        return task as Task;
+      });
+      mockEntityManager.persistAndFlush.mockResolvedValue(undefined);
       const actualResult = await service.createTask(inputCreateTaskDto);
-      expect(mockRepository.create).toHaveBeenCalledWith(inputCreateTaskDto);
-      expect(mockRepository.persistAndFlush).toHaveBeenCalledWith(
+      expect(mockRepository.assign).toHaveBeenCalled();
+      expect(mockEntityManager.persistAndFlush).toHaveBeenCalledWith(
         expectedTask,
       );
       expect(actualResult).toMatchObject({
         id: expectedTask.id,
         title: expectedTask.title,
         description: expectedTask.description,
-        isCompleted: expectedTask.isCompleted,
+        status: expectedTask.status,
       });
     });
   });
@@ -101,7 +115,7 @@ describe('TaskService', () => {
       const inputId = '1';
       const inputUpdateTaskDto: UpdateTaskDto = {
         title: 'Updated Task',
-        isCompleted: true,
+        status: TaskStatus.IN_PROGRESS,
       };
       const updatedTask: Task = {
         ...mockTask,
@@ -110,8 +124,9 @@ describe('TaskService', () => {
       mockRepository.findOne.mockResolvedValue(mockTask);
       mockRepository.assign.mockImplementation((task, dto) => {
         Object.assign(task, dto);
+        return task as Task;
       });
-      mockRepository.flush.mockResolvedValue(undefined);
+      mockEntityManager.flush.mockResolvedValue(undefined);
       const actualResult = await service.updateTask(
         inputId,
         inputUpdateTaskDto,
@@ -121,7 +136,7 @@ describe('TaskService', () => {
         mockTask,
         inputUpdateTaskDto,
       );
-      expect(mockRepository.flush).toHaveBeenCalled();
+      expect(mockEntityManager.flush).toHaveBeenCalled();
     });
     it('should throw NotFoundException when task not found', async () => {
       const inputId = '999';
@@ -136,10 +151,10 @@ describe('TaskService', () => {
     it('should delete a task successfully', async () => {
       const inputId = '1';
       mockRepository.findOne.mockResolvedValue(mockTask);
-      mockRepository.removeAndFlush.mockResolvedValue(undefined);
+      mockEntityManager.removeAndFlush.mockResolvedValue(undefined);
       await service.deleteTask(inputId);
       expect(mockRepository.findOne).toHaveBeenCalledWith({ id: inputId });
-      expect(mockRepository.removeAndFlush).toHaveBeenCalledWith(mockTask);
+      expect(mockEntityManager.removeAndFlush).toHaveBeenCalledWith(mockTask);
     });
     it('should throw NotFoundException when task not found', async () => {
       const inputId = '999';

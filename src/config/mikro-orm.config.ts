@@ -1,11 +1,12 @@
 import { Options } from '@mikro-orm/core';
+import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { Task } from '../modules/tasks/models/entities/task.entity';
 
 /**
  * MikroORM configuration.
  */
-export const mikroOrmConfig: Options = {
-  type: 'postgresql',
+export const mikroOrmConfig: Options<PostgreSqlDriver> = {
+  driver: PostgreSqlDriver,
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '5432', 10),
   user: process.env.DB_USER || 'postgres',
@@ -14,7 +15,6 @@ export const mikroOrmConfig: Options = {
   entities: [Task],
   migrations: {
     path: './migrations',
-    pattern: /^[\w-]+\d+\.(ts|js)$/,
     transactional: true,
     disableForeignKeys: false,
     allOrNothing: true,
