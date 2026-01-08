@@ -4,6 +4,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { AppController } from './app.controller';
 import { mikroOrmConfig } from './config/mikro-orm.config';
 
 /**
@@ -20,5 +21,6 @@ import { mikroOrmConfig } from './config/mikro-orm.config';
     SharedModule,
     TasksModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}

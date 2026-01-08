@@ -1,17 +1,14 @@
 import { Options } from '@mikro-orm/core';
-import { PostgreSqlDriver } from '@mikro-orm/postgresql';
+import { SqliteDriver } from '@mikro-orm/sqlite';
 import { Task } from '../modules/tasks/models/entities/task.entity';
 
 /**
  * MikroORM configuration.
+ * Using SQLite for development. For production, switch to PostgreSQL.
  */
-export const mikroOrmConfig: Options<PostgreSqlDriver> = {
-  driver: PostgreSqlDriver,
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432', 10),
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-  dbName: process.env.DB_NAME || 'task_management',
+export const mikroOrmConfig: Options<SqliteDriver> = {
+  driver: SqliteDriver,
+  dbName: process.env.DB_NAME || './task_management.db',
   entities: [Task],
   migrations: {
     path: './migrations',

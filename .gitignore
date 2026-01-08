@@ -42,3 +42,9 @@ lerna-debug.log*
 # MikroORM
 /migrations/*.js
 !migrations/.gitkeep
+
+# SQLite database
+*.db
+*.db-shm
+*.db-wal
+task_management.db

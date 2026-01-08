@@ -36,6 +36,14 @@ export class TaskController {
     return this.taskService.findAllTasks();
   }
   /**
+   * Smoke test endpoint.
+   */
+  @Get('admin/test')
+  @HttpCode(HttpStatus.OK)
+  async test(): Promise<{ status: string }> {
+    return { status: 'ok' };
+  }
+  /**
    * Retrieves a task by ID.
    */
   @Get(':id')
@@ -59,13 +67,5 @@ export class TaskController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteTask(@Param('id') id: string): Promise<void> {
     return this.taskService.deleteTask(id);
-  }
-  /**
-   * Smoke test endpoint.
-   */
-  @Get('admin/test')
-  @HttpCode(HttpStatus.OK)
-  async test(): Promise<{ status: string }> {
-    return { status: 'ok' };
   }
 }
