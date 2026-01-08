@@ -1,14 +1,36 @@
 .kanban-board {
   display: flex;
-  gap: 16px;
-  padding: 24px;
+  gap: 24px;
+  padding: 32px;
   overflow-x: auto;
   min-height: calc(100vh - 200px);
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.kanban-board::-webkit-scrollbar {
+  height: 8px;
+}
+
+.kanban-board::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.kanban-board::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.kanban-board::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 @media (max-width: 768px) {
   .kanban-board {
     flex-direction: column;
-    padding: 16px;
+    padding: 20px;
+    gap: 16px;
   }
 }

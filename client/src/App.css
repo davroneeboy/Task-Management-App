@@ -9,13 +9,15 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f9fafb;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
 }
 
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .app-loading {
@@ -23,21 +25,26 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .loading-spinner {
   font-size: 18px;
-  color: #6b7280;
+  color: white;
+  font-weight: 500;
 }
 
 .app-error {
-  background: #fee2e2;
-  color: #991b1b;
-  padding: 12px 24px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  padding: 16px 24px;
   text-align: center;
+  font-weight: 500;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .app-main {
   flex: 1;
   overflow: auto;
+  padding: 0;
 }

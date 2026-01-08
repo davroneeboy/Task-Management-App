@@ -34,8 +34,13 @@ export class TaskService {
    * Retrieves all tasks.
    */
   async findAllTasks(): Promise<TaskOutput[]> {
-    const tasks = await this.taskRepository.findAll();
-    return tasks.map((task) => this.mapToOutput(task));
+    try {
+      const tasks = await this.taskRepository.findAll();
+      return tasks.map((task) => this.mapToOutput(task));
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      throw error;
+    }
   }
   /**
    * Retrieves a task by ID.
