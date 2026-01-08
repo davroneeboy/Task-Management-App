@@ -84,8 +84,8 @@ export function TaskModal({
         </div>
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-group">
-            <label htmlFor="title" className="form-label">
-              Название *
+            <label htmlFor="title" className="form-label required">
+              Название
             </label>
             <input
               id="title"

@@ -33,14 +33,22 @@ export function TaskCard({ task, onClick }: TaskCardProps): JSX.Element {
   const getStatusColor = (status: TaskStatus): string => {
     switch (status) {
       case TaskStatus.TODO:
-        return '#3b82f6';
+        return 'var(--color-todo)';
       case TaskStatus.IN_PROGRESS:
-        return '#f59e0b';
+        return 'var(--color-in-progress)';
       case TaskStatus.DONE:
-        return '#10b981';
+        return 'var(--color-done)';
       default:
-        return '#667eea';
+        return 'var(--color-primary)';
     }
+  };
+  const getInitials = (name: string): string => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
   return (
     <div
@@ -48,22 +56,24 @@ export function TaskCard({ task, onClick }: TaskCardProps): JSX.Element {
       className={`task-card ${isDragging ? 'task-card--dragging' : ''}`}
       onClick={onClick}
       style={{
-        borderLeftColor: getStatusColor(task.status),
-      }}
+        '--task-color': getStatusColor(task.status),
+      } as React.CSSProperties}
     >
       <div className="task-card__header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '16px' }}>{getStatusBadge(task.status)}</span>
-          <h3 className="task-card__title">{task.title}</h3>
-        </div>
+        <div className="task-card__status-badge">{getStatusBadge(task.status)}</div>
+        <h3 className="task-card__title">{task.title}</h3>
       </div>
       {task.description && (
         <p className="task-card__description">{task.description}</p>
       )}
       {task.assigneeName && (
-        <div className="task-card__assignee">
-          <span className="task-card__assignee-label">👤</span>
-          <span className="task-card__assignee-name">{task.assigneeName}</span>
+        <div className="task-card__footer">
+          <div className="task-card__assignee">
+            <div className="task-card__assignee-avatar">
+              {getInitials(task.assigneeName)}
+            </div>
+            <span className="task-card__assignee-name">{task.assigneeName}</span>
+          </div>
         </div>
       )}
     </div>

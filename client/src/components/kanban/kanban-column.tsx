@@ -36,13 +36,25 @@ export function KanbanColumn({
   const getStatusColor = (status: TaskStatus): string => {
     switch (status) {
       case TaskStatus.TODO:
-        return '#3b82f6';
+        return 'var(--color-todo)';
       case TaskStatus.IN_PROGRESS:
-        return '#f59e0b';
+        return 'var(--color-in-progress)';
       case TaskStatus.DONE:
-        return '#10b981';
+        return 'var(--color-done)';
       default:
-        return '#667eea';
+        return 'var(--color-primary)';
+    }
+  };
+  const getStatusIcon = (status: TaskStatus): string => {
+    switch (status) {
+      case TaskStatus.TODO:
+        return '📋';
+      case TaskStatus.IN_PROGRESS:
+        return '⚙️';
+      case TaskStatus.DONE:
+        return '✅';
+      default:
+        return '📝';
     }
   };
   return (
@@ -50,16 +62,22 @@ export function KanbanColumn({
       ref={drop}
       className={`kanban-column ${isOver ? 'kanban-column--over' : ''}`}
       style={{
-        borderTop: `4px solid ${getStatusColor(status)}`,
-      }}
+        '--column-color': getStatusColor(status),
+      } as React.CSSProperties}
     >
       <div className="kanban-column__header">
-        <h2 className="kanban-column__title">{title}</h2>
+        <div className="kanban-column__title-wrapper">
+          <div className="kanban-column__icon">{getStatusIcon(status)}</div>
+          <h2 className="kanban-column__title">{title}</h2>
+        </div>
         <span className="kanban-column__count">{tasks.length}</span>
       </div>
       <div className="kanban-column__content">
         {sortedTasks.length === 0 ? (
-          <div className="kanban-column__empty">Нет задач</div>
+          <div className="kanban-column__empty">
+            <div className="kanban-column__empty-icon">📭</div>
+            <div>Нет задач</div>
+          </div>
         ) : (
           sortedTasks.map((task) => (
             <TaskCard key={task.id} task={task} onClick={() => onTaskClick(task)} />

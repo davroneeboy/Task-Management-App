@@ -6,6 +6,8 @@ import { UserRole } from './types/user.types';
 import { Header } from './components/layout/header';
 import { KanbanBoard } from './components/kanban/kanban-board';
 import { TaskModal } from './components/modals/task-modal';
+import { ToastContainer } from './components/common/toast-container';
+import { ToastType } from './components/common/toast';
 import './App.css';
 
 /**
@@ -26,6 +28,16 @@ function App(): JSX.Element {
   const { setCurrentUser, isManager } = useUserStore();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [toasts, setToasts] = useState<Array<{ id: string; message: string; type: ToastType }>>([]);
+  
+  const addToast = (message: string, type: ToastType): void => {
+    const id = Math.random().toString(36).substring(7);
+    setToasts((prev) => [...prev, { id, message, type }]);
+  };
+  
+  const removeToast = (id: string): void => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
   useEffect(() => {
     loadFromLocalStorage();
     setCurrentUser({
@@ -49,10 +61,16 @@ function App(): JSX.Element {
     setSelectedTask(null);
   };
   const handleSaveTask = async (dto: CreateTaskDto | UpdateTaskDto): Promise<void> => {
-    if (selectedTask) {
-      await updateTask(selectedTask.id, dto as UpdateTaskDto);
-    } else {
-      await createTask(dto as CreateTaskDto);
+    try {
+      if (selectedTask) {
+        await updateTask(selectedTask.id, dto as UpdateTaskDto);
+        addToast('Задача успешно обновлена', 'success');
+      } else {
+        await createTask(dto as CreateTaskDto);
+        addToast('Задача успешно создана', 'success');
+      }
+    } catch (error) {
+      addToast('Ошибка при сохранении задачи', 'error');
     }
   };
   const handleTaskDrop = async (taskId: string, newStatus: TaskStatus): Promise<void> => {
@@ -72,7 +90,8 @@ function App(): JSX.Element {
   if (isLoading && tasks.length === 0) {
     return (
       <div className="app-loading">
-        <div className="loading-spinner">Загрузка...</div>
+        <div className="loading-spinner"></div>
+        <div className="loading-text">Загрузка...</div>
       </div>
     );
   }
@@ -99,6 +118,7 @@ function App(): JSX.Element {
         isManager={isManager()}
         availableUsers={availableUsers}
       />
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }
